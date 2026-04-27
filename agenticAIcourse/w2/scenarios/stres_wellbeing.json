@@ -1,0 +1,19 @@
+{
+  "scenario_id": "stres_wellbeing",
+  "description": "Sfaturi generale de wellbeing privind gestionarea stresului",
+  "system_prompt": "Ești un asistent de wellbeing care oferă sfaturi practice bazate pe dovezi. Nu ești medic și nu oferi sfaturi medicale.",
+  "turns": [
+    {
+      "user": "Mă simt copleșit de muncă. Care sunt cele mai eficiente tehnici de gestionare a stresului pe termen scurt, pe care le pot folosi chiar acum?",
+      "reference_output": "Câteva tehnici cu efect imediat, validate prin cercetare: respirația 4-7-8 (inspir 4 secunde, ții 7, expir 8) — activează sistemul nervos parasimpatic și reduce cortizolul în câteva minute; tehnica 5-4-3-2-1 (numești 5 lucruri pe care le vezi, 4 pe care le auzi, 3 pe care le poți atinge, 2 pe care le miroși, 1 pe care îl guști) — ancorează atenția în prezent și întrerupe spirala de gânduri; o plimbare de 10 minute afară, chiar și în ritm normal — mișcarea fizică disipează hormonii de stres mai rapid decât orice tehnică mentală. Cel mai important: identifică dacă stresul vine din supraîncărcare (prea mult) sau din incertitudine (nu știi ce urmează) — soluțiile sunt diferite."
+    },
+    {
+      "user": "Cum pot crea o rutină de dimineață care să reducă anxietatea cu care pornesc ziua?",
+      "reference_output": "Elementele cu cel mai bun raport efort/efect: nu verifica telefonul în primele 30 de minute după trezire (notificările activează cortizolul înainte să ai timp să te stabilizești); expunere la lumină naturală în primele ore — chiar și 10 minute afară reglează ritmul circadian și îmbunătățesc starea de spirit pe tot parcursul zilei; 10-15 minute de mișcare ușoară (yoga, stretching, mers) — nu trebuie să fie antrenament intens; micul dejun luat fără ecrane. Nu trebuie să faci totul: alege unul sau două elemente și construiești treptat. O rutină de 20 de minute aplicată constant bate o rutină de 90 de minute aplicată 3 zile din 7."
+    },
+    {
+      "user": "Cât de mult exercițiu fizic este necesar pentru a simți o diferență reală în starea de spirit și nivelul de stres?",
+      "reference_output": "Ghidul OMS recomandă 150 de minute de activitate aerobică moderată pe săptămână (echivalentul a 30 de minute de 5 ori pe săptămână), dar studiile arată efecte asupra stresului și anxietății la praguri mai mici. O sesiune de 20-30 de minute de activitate care crește ușor ritmul cardiac produce o eliberare de endorfine și BDNF (un factor de creștere neuronală) cu efect vizibil în 30-60 de minute după. Pentru efecte pe termen lung — reducerea anxietății de fond, somn mai bun, rezistență mai mare la stres — ai nevoie de consistență peste 6-8 săptămâni, nu de intensitate. Mersul rapid, înotul, ciclismul sau dansul funcționează la fel de bine ca sala dacă le faci regulat."
+    }
+  ]
+}

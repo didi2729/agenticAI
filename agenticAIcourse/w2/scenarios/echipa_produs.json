@@ -1,0 +1,19 @@
+{
+  "scenario_id": "echipa_produs",
+  "description": "Sfaturi pentru organizarea unei echipe de produs într-un startup",
+  "system_prompt": "Ești un consultant în management cu experiență în startup-uri tech. Dai sfaturi practice și directe.",
+  "turns": [
+    {
+      "user": "Avem un startup cu 8 angajați și tocmai am obținut finanțare seed. Vrem să construim o echipă de produs. Ce roluri ar trebui să avem?",
+      "reference_output": "Pentru 8 oameni la seed, prioritizează: un Product Manager care deține roadmap-ul și vorbește cu utilizatorii, 3-4 ingineri software (din care cel puțin unul cu experiență în backend), un designer UX/UI care poate face și research, și dacă produsul e tehnic complex, un QA. Nu angaja un DevOps dedicat la această dimensiune — un inginer poate prelua infrastructura cu Terraform și servicii managed. Evită titlurile mari la echipă mică: toată lumea face mai multe lucruri. Cel mai important: PM-ul trebuie să fie cineva care vorbește direct cu clienții cel puțin 2-3 ore pe săptămână."
+    },
+    {
+      "user": "Cum ar trebui să comunicăm între echipa de produs și echipa tehnică pentru a evita fricțiunile?",
+      "reference_output": "Principala sursă de fricțiune este specificațiile ambigue sau schimbate târziu. Câteva practici care funcționează la dimensiunea voastră: PM-ul scrie un document de produs scurt (1-2 pagini) pentru fiecare funcționalitate înainte de a intra în sprint, inginerilor li se dă timp de estimare fără presiune de calendar, deciziile tehnice importante se documentează într-un ADR (Architecture Decision Record) simplu. Evitați să separați complet 'ce' de 'cum' — implicați inginerii din faza de definire a problemei, nu doar în implementare. La 8 oameni, o ușă deschisă și conversații directe valorează mai mult decât orice proces formal."
+    },
+    {
+      "user": "Ce meeting-uri recurente recomandați pentru o echipă atât de mică?",
+      "reference_output": "Minim necesar: standup zilnic de 15 minute (nu mai mult — dacă durează mai mult, problema e de design, nu de meeting), sprint planning la 2 săptămâni (1-2 ore), sprint retrospectivă (45 de minute la fiecare 2 săptămâni — este cel mai subestimat meeting, nu îl tăiați). Opțional dar valoros: o sesiune lunară de user research împărtășit cu toată echipa (ca toată lumea să audă direct vocea clientului) și un one-on-one săptămânal între PM și fiecare inginer de 20-30 de minute. Evitați: meeting-uri de status — statusul se vede din Jira/Linear, meeting-ul e pentru blocaje și decizii."
+    }
+  ]
+}

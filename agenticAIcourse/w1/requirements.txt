@@ -1,0 +1,166 @@
+Ce vei construi
+Un server FastAPI cu urmatoarele endpoint-uri:
+
+Metodă	Path	Descriere
+POST	/sessions	Creează o sesiune nouă de conversație
+GET	/sessions/{session_id}	Returnează istoricul unei sesiuni
+POST	/sessions/{session_id}/messages	Trimite un mesaj și primești răspunsul LLM-ului
+DELETE	/sessions/{session_id}	Șterge o sesiune
+Stocarea sesiunilor se face în memorie (un dicționar Python) — nu e nevoie de bază de date.
+
+Setup
+Exercițiul funcționează cu orice LLM care expune un API OpenAI-compatibil. Alege una din variantele de mai jos:
+
+Varianta A — API cloud (OpenAI, sau alt provider)
+pip install fastapi uvicorn openai python-dotenv
+Creează un fișier .env cu cheia API:
+
+LLM_API_KEY=sk-...
+LLM_BASE_URL=https://api.openai.com/v1
+LLM_MODEL=gpt-4o-mini
+Varianta B — LLM local (e.g. Ollama, fără cheie API)
+Instalează Ollama sau o solutie alternativa și descarcă un model:
+
+ollama pull llama3.2
+Fișierul .env pentru Ollama:
+
+LLM_API_KEY=ollama
+LLM_BASE_URL=http://localhost:11434/v1
+LLM_MODEL=llama3.2
+Clientul Python este identic în ambele variante — diferă doar valorile din .env.
+
+Structura proiectului
+chat_api/
+├── main.py
+├── models.py
+├── .env
+└── requirements.txt
+Pasul 1 — Modelele Pydantic
+În models.py, definește modelele pentru request și response. Gândește-te la ce date intră și ies din fiecare endpoint.
+
+Vei avea nevoie de cel puțin:
+
+Un model pentru un mesaj individual (rol + conținut). Rolurile posibile: user, assistant.
+Un model pentru crearea unei sesiuni — poate accepta un system_prompt opțional.
+Un model pentru trimiterea unui mesaj — conținutul mesajului utilizatorului.
+Un model pentru răspunsul returnat clientului — cel puțin mesajul primit de la LLM.
+Un model pentru starea unei sesiuni — ce returnezi când cineva cere GET /sessions/{id}.
+Separă modelele de request (ce primești) de modelele de response (ce returnezi). Nu expune structuri interne în răspunsuri.
+Pasul 2 — Stocarea sesiunilor
+În main.py, declară un dicționar global care va stoca sesiunile active:
+
+from collections import defaultdict
+# sau pur și simplu
+sessions: dict[str, ...] = {}
+Fiecare sesiune trebuie să rețină:
+
+un identificator unic (generează cu uuid.uuid4())
+istoricul mesajelor (lista de dict-uri cu role și content)
+system prompt-ul (dacă a fost furnizat la creare)
+momentul creării (opțional, dar util)
+Poți folosi un @dataclass sau un simplu dict pentru structura internă a sesiunii. Nu e obligatoriu să fie un model Pydantic — aceasta este starea internă a serverului, nu ceva expus direct.
+Pasul 3 — Inițializarea clientului LLM
+Serverul trebuie să creeze un client pentru API-ul LLM (de exemplu pentru OpenAI sau un serviciu compatibil). Acest client este apoi folosit de endpoint-uri pentru a trimite mesaje către model.
+
+Există două moduri uzuale de a face acest lucru:
+
+la pornirea aplicatiei, folosind lifespan
+la nivel de modul, adica direct in codul Python
+Varianta A — Inițializare la pornirea aplicației (lifespan)
+În FastAPI există mecanismul lifespan, care permite executarea de cod atunci când serverul pornește și când se oprește.
+
+Această abordare creează clientul o singură dată la startup, înainte de a procesa request-uri. Codul dinainte de `yield` rulează când serverul pornește. Codul după `yield` rulează când serverul se oprește.
+
+import os
+from contextlib import asynccontextmanager
+from openai import OpenAI
+from fastapi import FastAPI
+
+llm_client: dict = {}
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    llm_client["client"] = OpenAI(
+        api_key=os.environ["LLM_API_KEY"],
+        base_url=os.environ["LLM_BASE_URL"],
+    )
+    yield
+    llm_client.clear()
+
+app = FastAPI(lifespan=lifespan)
+Avantaje:
+
+inițializare controlată la startup
+erorile de configurație apar imediat când pornește serverul
+permite cleanup la oprirea aplicației
+modelul folosit și clientul sunt centralizate.
+Dezavantaje:
+
+codul este puțin mai complex
+necesită înțelegerea mecanismului `lifespan` și a context managerelor.
+dacă inițializarea resursei este costisitoare sau implică operații de rețea lente, folosirea mecanismului lifespan poate bloca pornirea serverului
+Varianta B — Inițializare la nivel de modul
+Alternativ, clientul poate fi creat direct la nivelul fișierului Python. În acest caz, clientul este creat când modulul este importat.
+
+import os
+from openai import OpenAI
+
+client = OpenAI(
+    api_key=os.environ["LLM_API_KEY"],
+    base_url=os.environ["LLM_BASE_URL"],
+)
+Avantaje:
+
+cod mai simplu, mai puține concepte de învățat
+suficient pentru scripturi sau aplicații mici.
+flexibilitate in privinta solutiei de threading
+Dezavantaje:
+
+inițializarea are loc la import, nu la startup-ul aplicației
+erorile de configurație pot apărea într-un moment mai puțin clar
+nu există un loc dedicat pentru cleanup
+Pasul 4 — Endpoint-urile
+POST /sessions
+Creează o sesiune nouă cu un ID unic. Dacă requestul conține un system_prompt, salvează-l.
+
+Returnează ID-ul sesiunii create și un timestamp.
+
+@app.post("/sessions")
+def create_session(body: SessionCreate) -> SessionResponse:
+    ...
+GET /sessions/{session_id}
+Returnează istoricul sesiunii: toate mesajele (user + assistant), în ordine.
+
+Dacă sesiunea nu există, returnează 404:
+
+from fastapi import HTTPException
+ 
+raise HTTPException(status_code=404, detail="Sesiunea nu există")
+POST /sessions/{session_id}/messages
+Acesta este endpoint-ul principal. Fluxul:
+
+Verifici că sesiunea există (404 dacă nu)
+Adaugi mesajul utilizatorului la istoricul sesiunii
+Construiești lista completă de mesaje pentru apelul la LLM
+Apelezi LLM-ul cu istoricul complet
+Adaugi răspunsul asistentului la istoric
+Returnezi răspunsul
+@app.post("/sessions/{session_id}/messages")
+def send_message(session_id: str, body: MessageRequest) -> MessageResponse:
+    ...
+Apelul la LLM folosind clientul OpenAI-compatibil:
+
+client = llm_client["client"]
+model  = os.environ["LLM_MODEL"]
+ 
+response = client.chat.completions.create(
+    model=model,
+    max_tokens=1024,
+    messages=history,   # lista completă, inclusiv system prompt dacă există
+)
+reply = response.choices[0].message.content
+Dacă sesiunea are un system_prompt, adaugă-l ca primul element al listei cu role: „system“ înainte de mesajele user/assistant. Formatul este identic indiferent de provider.
+De ce trimitem tot istoricul? Modelul nu știe ce s-a spus anterior dacă nu îi trimiți tu. La fiecare apel, construiești lista completă: [{„role“: „user“, „content“: „Salut“}, {„role“: „assistant“, „content“: „Bună ziua!“}, {„role“: „user“, „content“: „Ce mai faci?“}]
+DELETE /sessions/{session_id}
+Șterge sesiunea din dicționar. Returnează confirmare sau 404 dacă nu există.
+

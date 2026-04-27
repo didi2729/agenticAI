@@ -1,0 +1,19 @@
+{
+  "scenario_id": "observer_pattern",
+  "description": "Explicarea pattern-ului Observer în programare orientată pe obiecte",
+  "system_prompt": "Ești un senior software engineer care explică concepte de design cu exemple concrete în Python.",
+  "turns": [
+    {
+      "user": "Ce este pattern-ul Observer în programare și când ar trebui să îl folosesc?",
+      "reference_output": "Observer este un pattern comportamental în care un obiect (subject sau observable) menține o listă de dependenți (observers) și îi notifică automat când starea sa se schimbă. Folosești Observer când: mai multe componente trebuie să reacționeze la același eveniment fără să știe una de alta (decuplare), nu știi dinainte câte componente vor fi interesate de un eveniment, sau vrei să poți adăuga/elimina reacții fără să modifici sursa evenimentului. Exemple concrete: un sistem de notificări (un eveniment 'comandă plasată' notifică email service, inventory service și analytics), UI frameworks (un model de date notifică mai multe view-uri să se actualizeze), sau un feed de date financiare care notifică mai mulți consumatori."
+    },
+    {
+      "user": "Care este diferența dintre Observer și o arhitectură event-driven? Par să facă același lucru.",
+      "reference_output": "Seamănă, dar diferă prin gradul de cuplare. În Observer clasic, subject-ul deține o referință directă la fiecare observer și îi apelează direct — observer-ii trebuie să se înregistreze explicit la subject. Există cuplare directă între producer și consumatori. În Event-Driven Architecture (EDA), producătorii de evenimente și consumatorii nu se cunosc — comunică prin intermediul unui message broker (Kafka, RabbitMQ, un event bus). Producătorul publică un eveniment și nu știe cine îl consumă; consumatorii se abonează independent. EDA este Observer la scară, cu un strat de indirectare care permite scalabilitate orizontală, persistența evenimentelor și consumatori care nu sunt activi la momentul producerii evenimentului. La nivel de proces unic, Observer e suficient; în sisteme distribuite, EDA e necesar."
+    },
+    {
+      "user": "Arată-mi un exemplu concret de Observer implementat în Python.",
+      "reference_output": "Iată o implementare minimală:\n\nclass EventEmitter:\n    def __init__(self):\n        self._handlers: dict[str, list] = {}\n\n    def on(self, event: str, handler):\n        self._handlers.setdefault(event, []).append(handler)\n\n    def emit(self, event: str, data=None):\n        for handler in self._handlers.get(event, []):\n            handler(data)\n\n\nclass OrderService(EventEmitter):\n    def place_order(self, order: dict):\n        print(f\"Comanda {order['id']} plasată\")\n        self.emit('order_placed', order)\n\n\ndef send_confirmation_email(order):\n    print(f\"Email trimis pentru comanda {order['id']}\")\n\ndef update_inventory(order):\n    print(f\"Stoc actualizat pentru comanda {order['id']}\")\n\n\nservice = OrderService()\nservice.on('order_placed', send_confirmation_email)\nservice.on('order_placed', update_inventory)\nservice.place_order({'id': 'ORD-001', 'product': 'laptop'})\n\nOrderService nu știe nimic despre email sau inventar — adaugi sau elimini observers fără să modifici clasa."
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "scenario_id": "stiva_intro",
+  "description": "Introducere în structura de date stivă (stack)",
+  "system_prompt": "Ești un asistent didactic care explică concepte de informatică clar și concis.",
+  "turns": [
+    {
+      "user": "Ce este o stivă (stack) în informatică?",
+      "reference_output": "O stivă este o structură de date liniară care funcționează după principiul LIFO — Last In, First Out: ultimul element adăugat este primul eliminat. Poți să o gândești ca pe un teanc de farfurii: pui farfurii deasupra și le iei tot de deasupra. Operațiile de bază sunt push (adaugă un element în vârf) și pop (elimină elementul din vârf). Accesul direct la elemente din mijloc nu este permis."
+    },
+    {
+      "user": "Cum funcționează exact operațiile push și pop? Dă-mi un exemplu cu numere.",
+      "reference_output": "Pornind de la o stivă goală: push(3) → stiva: [3]; push(7) → stiva: [3, 7]; push(1) → stiva: [3, 7, 1]. Acum, pop() returnează 1 și stiva devine [3, 7]; al doilea pop() returnează 7 și stiva devine [3]. Vârful stivei este întotdeauna ultimul element adăugat. O operație peek (sau top) îți permite să vezi elementul din vârf fără să îl elimini."
+    },
+    {
+      "user": "Unde se folosesc stivele în practică?",
+      "reference_output": "Stivele apar în mai multe contexte reale: call stack-ul unui program (când apelezi o funcție, cadrul ei este pus pe stivă; când funcția se termină, este eliminat), funcționalitatea undo/redo din editoare (fiecare acțiune e pusă pe stivă, undo face pop), parsarea expresiilor matematice și verificarea parantezelor echilibrate, navigarea înainte/înapoi în browsere, și algoritmii DFS (Depth-First Search) pe grafuri. De fiecare dată când ai nevoie să 'mergi înapoi' la o stare anterioară, stiva este structura potrivită."
+    }
+  ]
+}
